@@ -1,3 +1,9 @@
-//
-// Created by Elon on 07/06/2022.
-//
+#include "iostream"
+int main ()
+{
+  std::cout << "hi";
+  if (0)
+    {
+      return 0;
+    }
+}
