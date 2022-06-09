@@ -17,8 +17,9 @@ class HashMap
 {
  public:
   HashMap ();
-  bool insert (string key, string value);
+  bool insert (string &key, string &value);
   void print_all (); //TODO: delete
+  ~HashMap ();
 
  private:
   int _capacity;
@@ -31,10 +32,12 @@ HashMap::HashMap () : _capacity (INITIAL_SIZE)
   buckets = new vector<std::pair<string, string>>[_capacity];
 }
 
-bool HashMap::insert (string key, string value)
+bool HashMap::insert (string &key, string &value)
 {
+  std::hash<string> v;
+  unsigned long place = v (key) & (_capacity - 1);
   auto my_pair = std::make_pair (key, value);
-  buckets[0].push_back (my_pair);
+  buckets[place].push_back (my_pair);
   return true;
 }
 
@@ -49,6 +52,10 @@ void HashMap::print_all ()
     }
   }
 
+}
+HashMap::~HashMap ()
+{
+  delete[] buckets;
 }
 
 #endif //_HASHMAP_HPP_
