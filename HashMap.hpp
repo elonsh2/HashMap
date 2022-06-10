@@ -2,6 +2,7 @@
 #include "vector"
 #include "string"
 #include <utility>
+#include <algorithm>
 #ifndef _HASHMAP_HPP_
 #define _HASHMAP_HPP_
 
@@ -17,11 +18,19 @@ class HashMap
 {
  public:
   HashMap ();
-  bool insert (string &key, string &value);
+  int capacity() const
+  {return _capacity;}
+  int size() const
+  {return _entries;}
+  bool empty() const
+  {return _entries == 0;}
+  bool insert (string key, string value);
+  bool contains_key (const string &key);
   void print_all (); //TODO: delete
   ~HashMap ();
 
  private:
+  int hash_function (const string &key) const;
   int _capacity;
   int _entries = 0;
   vector<std::pair<string, string>> *buckets;
@@ -32,12 +41,12 @@ HashMap::HashMap () : _capacity (INITIAL_SIZE)
   buckets = new vector<std::pair<string, string>>[_capacity];
 }
 
-bool HashMap::insert (string &key, string &value)
+bool HashMap::insert (string key, string value)
 {
-  std::hash<string> v;
-  unsigned long place = v (key) & (_capacity - 1);
+  int bucket = hash_function (key);
   auto my_pair = std::make_pair (key, value);
-  buckets[place].push_back (my_pair);
+  buckets[bucket].push_back (my_pair);
+  _entries += 1;
   return true;
 }
 
@@ -45,17 +54,41 @@ void HashMap::print_all ()
 {
   for (int i = 0; i < _capacity; i++)
   {
+    if (buckets[i].empty())
+    {
+      continue;
+    }
+    cout <<  i << endl;
     for (const auto &pair: buckets[i])
     {
-      cout << "Bucket num " << i << endl << "KEY: " << pair.first
-           << " VALUE: " << pair.second << endl;
+      cout << "(" << pair.first
+           << ", " << pair.second << "), ";
     }
+    endl(cout);
   }
-
 }
 HashMap::~HashMap ()
 {
   delete[] buckets;
 }
+bool HashMap::contains_key (const string &key)
+{
+  int bucket = hash_function (key);
+  for (const auto &pair: buckets[bucket])
+  {
+    if (pair.first == key)
+    {
+      return true;
+    }
+  }
+  return false;
+}
+int HashMap::hash_function (const string &key) const
+{
+  std::hash<string> hasher;
+  unsigned long place = hasher (key) & (_capacity - 1);
+  return place;
+}
+
 
 #endif //_HASHMAP_HPP_
