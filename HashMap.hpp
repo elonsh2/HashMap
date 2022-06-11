@@ -4,6 +4,8 @@
 #include <utility>
 #include <algorithm>
 #include <stdexcept>
+#include <cassert>
+#include <forward_list>
 
 #ifndef _HASHMAP_HPP_
 #define _HASHMAP_HPP_
@@ -11,6 +13,7 @@
 using std::string;
 using std::vector;
 using std::cout;
+
 using std::endl;
 #define INITIAL_SIZE 16
 #define DEFAULT_LOWER_LOAD 0.25
@@ -19,39 +22,108 @@ using std::endl;
 class HashMap
 {
  public:
+
   HashMap ();
-  int bucket_size(const string key) const;
+  HashMap (const vector<string> &keys, const vector<string> &values);
+  HashMap (HashMap &other_map);
+  int bucket_size (const string key) const;
   int capacity () const
   { return _capacity; }
-  int bucket_index(const string key) const;
-  void clear();
+  int bucket_index (const string key) const;
+  void clear ();
   int size () const
   { return _entries; }
   bool empty () const
   { return _entries == 0; }
   double get_load_factor () const
   { return load_factor; }
-  string at (string key) const;
+  const string &at (const string key) const; //TODO: implement const
   bool insert (string key, string value);
   bool contains_key (const string &key) const;
   bool erase (const string key);
+  string &operator[] (string key);
+  const string operator[] (string key) const;  //TODO: implement const
+  HashMap &operator= (const HashMap &sec_hash_map);
+  bool operator== (const HashMap &other_map) const;
+  bool operator!= (const HashMap &other_map) const
+  { return !(*this == other_map); }
   void print_all (); //TODO: delete
+
+
   ~HashMap ();
 
+  class ConstIterator
+  {
+   private:
+    vector<std::pair<string, string>> *buckets;
+    std::pair<string, string> pair;
+
+   public:
+    typedef std::pair<string, string> value_type;
+    typedef std::pair<string, string> &reference;
+    typedef std::pair<string, string> *pointer;
+    typedef std::ptrdiff_t difference_type;
+    typedef std::forward_iterator_tag iterator_category;
+
+    ConstIterator (std::pair<string, string> &pair) : pair (pair)
+    {}
+
+    ConstIterator &operator++ ()
+    {
+
+      return *this;
+    }
+
+  };
+
+  using const_iterator = ConstIterator;
+  const_iterator begin () const
+  { return ConstIterator (buckets[0][0]); }
  private:
+
   void update_load_factor ()
   { load_factor = _entries / double (_capacity); }
   void resize_array (size_t size);
   int hash_function (const string &key) const;
-  int _capacity;
+  int _capacity = INITIAL_SIZE;
   int _entries = 0;
   double load_factor = _entries / _capacity;
   vector<std::pair<string, string>> *buckets;
 };
 
-HashMap::HashMap () : _capacity (INITIAL_SIZE)
+HashMap::HashMap ()
 {
   buckets = new vector<std::pair<string, string>>[_capacity];
+}
+
+HashMap::HashMap (const vector<string> &keys, const vector<string> &values)
+{
+  if (keys.size () != values.size ())
+  {
+    throw std::length_error ("Vectors are not in the same size");
+  }
+  buckets = new vector<std::pair<string, string>>[_capacity];
+  for (int i = 0; i < keys.size (); i++)
+  {
+    if (contains_key (keys[i]))
+    {
+      erase (keys[i]); // TODO: check, erase or just change;
+    }
+    insert (keys[i], values[i]);
+  }
+}
+
+HashMap::HashMap (HashMap &other_map)
+{
+  _capacity = other_map._capacity;
+  buckets = new vector<std::pair<string, string>>[_capacity];
+  for (int bucket = 0; bucket < _capacity; bucket++)
+  {
+    for (auto &pair: other_map.buckets[bucket])
+    {
+      insert (pair.first, pair.second);
+    }
+  }
 }
 
 bool HashMap::insert (string key, string value)
@@ -113,7 +185,7 @@ int HashMap::hash_function (const string &key) const
   return place;
 }
 
-string HashMap::at (string key) const
+const string &HashMap::at (const string key) const
 {
   int bucket = hash_function (key);
   for (const auto &pair: buckets[bucket])
@@ -129,7 +201,7 @@ string HashMap::at (string key) const
 void HashMap::resize_array (const size_t size)
 {
   auto old_array = buckets;
-  int old_capacity =_capacity;
+  int old_capacity = _capacity;
   buckets = new vector<std::pair<string, string>>[size];
   _capacity = size;
   _entries = 0;
@@ -149,11 +221,11 @@ bool HashMap::erase (const string key)
   { return false; }
   int bucket = hash_function (key);
   int index = 0;
-  for (const auto &pair: buckets[bucket])
+  for (auto &pair: buckets[bucket])
   {
     if (pair.first == key)
     {
-      buckets[bucket].erase (buckets[bucket].begin()+index);
+      buckets[bucket].erase (buckets[bucket].begin () + index);
       _entries -= 1;
       break;
     }
@@ -166,29 +238,101 @@ bool HashMap::erase (const string key)
   }
   return true;
 }
+
 int HashMap::bucket_size (const string key) const
 {
   if (!contains_key (key))
-  {throw std::out_of_range ("Key doesn't exist");}
+  { throw std::out_of_range ("Key doesn't exist"); }
   int bucket = hash_function (key);
-  return buckets[bucket].size();
+  return buckets[bucket].size ();
 }
+
 int HashMap::bucket_index (const string key) const
 {
   if (!contains_key (key))
-  {throw std::out_of_range ("Key doesn't exist");}
+  { throw std::out_of_range ("Key doesn't exist"); }
   return hash_function (key);
 
 }
+
 void HashMap::clear ()
 {
-  for (int i=0;i<_capacity;i++)
+  for (int i = 0; i < _capacity; i++)
   {
-    buckets[i].clear();
+    buckets[i].clear ();
   }
   _entries = 0;
-  update_load_factor();
+  update_load_factor ();
 
+}
+
+string &HashMap::operator[] (string key)
+{
+  if (!contains_key (key))
+  {
+    insert (key, string ());
+  }
+  int bucket = hash_function (key);
+  for (auto &pair: buckets[bucket])
+  {
+    if (pair.first == key)
+    {
+      return pair.second;
+    }
+  }
+}
+
+const string HashMap::operator[] (string key) const
+{
+  if (!contains_key (key))
+  {
+    return string ();
+  }
+  int bucket = hash_function (key);
+  for (auto &pair: buckets[bucket])
+  {
+    if (pair.first == key)
+    {
+      return pair.second;
+    }
+  }
+}
+
+HashMap &HashMap::operator= (const HashMap &sec_hash_map)
+{
+  if (&sec_hash_map == this)
+  {
+    return *this;
+  }
+  delete[] buckets;
+  _entries = 0;
+  _capacity = sec_hash_map._capacity;
+  buckets = new vector<std::pair<string, string>>[_capacity];
+  for (int bucket = 0; bucket < _capacity; bucket++)
+  {
+    for (auto &pair: sec_hash_map.buckets[bucket])
+    {
+      insert (pair.first, pair.second);
+    }
+  }
+  return *this;
+}
+
+bool HashMap::operator== (const HashMap &other_map) const
+{
+  if (_entries != other_map.size ())
+  { return false; }
+  for (int i = 0; i < _capacity; i++)
+  {
+    for (const auto &pair: buckets[i])
+    {
+      if (other_map[pair.first] != pair.second)
+      {
+        return false;
+      }
+    }
+  }
+  return true;
 }
 
 #endif //_HASHMAP_HPP_
