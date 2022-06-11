@@ -1,11 +1,13 @@
 #include "iostream"
 #include "vector"
 #include "string"
+#include "set"
 #include <utility>
 #include <algorithm>
 #include <stdexcept>
 #include <cassert>
 #include <forward_list>
+#include <list>
 
 #ifndef _HASHMAP_HPP_
 #define _HASHMAP_HPP_
@@ -48,13 +50,13 @@ class HashMap
   bool operator!= (const HashMap &other_map) const
   { return !(*this == other_map); }
   void print_all (); //TODO: delete
-
-
+  std::list<vector<std::pair<string,string>>*> linked_list;
   ~HashMap ();
 
   class ConstIterator
   {
    private:
+
     vector<std::pair<string, string>> *buckets;
     std::pair<string, string> pair;
 
@@ -80,7 +82,7 @@ class HashMap
   const_iterator begin () const
   { return ConstIterator (buckets[0][0]); }
  private:
-
+  void update_linked_list();
   void update_load_factor ()
   { load_factor = _entries / double (_capacity); }
   void resize_array (size_t size);
@@ -90,6 +92,8 @@ class HashMap
   double load_factor = _entries / _capacity;
   vector<std::pair<string, string>> *buckets;
 };
+
+
 
 HashMap::HashMap ()
 {
@@ -139,6 +143,7 @@ bool HashMap::insert (string key, string value)
   {
     resize_array (_capacity * 2);
   }
+  update_linked_list();
   return true;
 }
 
@@ -150,7 +155,6 @@ void HashMap::print_all ()
     {
       continue;
     }
-    cout << i << endl;
     for (const auto &pair: buckets[i])
     {
       cout << "(" << pair.first
@@ -200,6 +204,7 @@ const string &HashMap::at (const string key) const
 
 void HashMap::resize_array (const size_t size)
 {
+  linked_list.clear();
   auto old_array = buckets;
   int old_capacity = _capacity;
   buckets = new vector<std::pair<string, string>>[size];
@@ -236,6 +241,7 @@ bool HashMap::erase (const string key)
   {
     resize_array (_capacity / 2);
   }
+  update_linked_list();
   return true;
 }
 
@@ -333,6 +339,21 @@ bool HashMap::operator== (const HashMap &other_map) const
     }
   }
   return true;
+}
+void HashMap::update_linked_list ()
+{
+  for (int i =0; i<_capacity;i++)
+  {
+    if (!buckets[i].empty())
+    {
+      if (linked_list.end() == std::find (linked_list.begin(), linked_list
+      .end(), &buckets[i]))
+      {
+        linked_list.push_front (&buckets[i]);
+      }
+
+    }
+  }
 }
 
 #endif //_HASHMAP_HPP_
