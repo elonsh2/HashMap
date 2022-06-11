@@ -20,18 +20,18 @@ using std::endl;
 #define INITIAL_SIZE 16
 #define DEFAULT_LOWER_LOAD 0.25
 #define DEFAULT_UPPER_LOAD 0.75
-
+template<typename KeyT, typename ValueT>
 class HashMap
 {
  public:
 
   HashMap ();
-  HashMap (const vector<string> &keys, const vector<string> &values);
+  HashMap (const vector<KeyT> &keys, const vector<ValueT> &values);
   HashMap (HashMap &other_map);
-  int bucket_size (const string key) const;
+  int bucket_size (const KeyT &key) const;
   int capacity () const
   { return _capacity; }
-  int bucket_index (const string key) const;
+  int bucket_index (const KeyT &key) const;
   void clear ();
   int size () const
   { return _entries; }
@@ -39,74 +39,164 @@ class HashMap
   { return _entries == 0; }
   double get_load_factor () const
   { return load_factor; }
-  const string &at (const string key) const; //TODO: implement const
-  bool insert (string key, string value);
-  bool contains_key (const string &key) const;
-  bool erase (const string key);
-  string &operator[] (string key);
-  const string operator[] (string key) const;  //TODO: implement const
+  const ValueT & at (const KeyT &key) const; //TODO: implement const
+  bool insert (KeyT key, ValueT value);
+  bool contains_key (const KeyT &key) const;
+  bool erase (const KeyT &key);
+  ValueT &operator[] (KeyT key);
+  const ValueT operator[] (KeyT key) const;  //TODO: implement const
   HashMap &operator= (const HashMap &sec_hash_map);
   bool operator== (const HashMap &other_map) const;
   bool operator!= (const HashMap &other_map) const
   { return !(*this == other_map); }
   void print_all (); //TODO: delete
-  std::list<vector<std::pair<string,string>>*> linked_list;
   ~HashMap ();
+
 
   class ConstIterator
   {
    private:
-
-    vector<std::pair<string, string>> *buckets;
-    std::pair<string, string> pair;
+    HashMap &table;
+    vector<std::pair<KeyT, ValueT>> *buckets;
+    int cur_bucket;
+    int cur_index;
 
    public:
-    typedef std::pair<string, string> value_type;
-    typedef std::pair<string, string> &reference;
-    typedef std::pair<string, string> *pointer;
+    typedef std::pair<KeyT, ValueT> value_type;
+    typedef std::pair<KeyT, ValueT> &reference;
+    typedef std::pair<KeyT, ValueT> *pointer;
     typedef std::ptrdiff_t difference_type;
     typedef std::forward_iterator_tag iterator_category;
 
-    ConstIterator (std::pair<string, string> &pair) : pair (pair)
-    {}
+    ConstIterator (const HashMap &table, int cur_bucket_in, int cur_index_in) :
+    buckets(table.buckets), cur_bucket(cur_bucket_in), cur_index(cur_index_in),
+    table(const_cast<HashMap &>(table))
+    {
+      while (buckets[cur_bucket].empty() && cur_bucket < (table._capacity-1))
+      {
+        cur_bucket++;
+      }
+    }
 
     ConstIterator &operator++ ()
     {
-
+      if (buckets[cur_bucket].size() > (cur_index+1))
+      {
+        cur_index++;
+        return *this;
+      }
+      cur_index =0;
+      cur_bucket++;
+      while (buckets[cur_bucket].empty() && cur_bucket < (table._capacity-1))
+      {
+        cur_bucket++;
+      }
       return *this;
+
     }
 
+    ConstIterator operator++(int)
+    {
+      ConstIterator it(table, cur_bucket, cur_index);
+      if (buckets[cur_bucket].size() > (cur_index+1))
+      {
+        cur_index++;
+        return it;
+      }
+      cur_index =0;
+      cur_bucket++;
+      while (buckets[cur_bucket].empty() && cur_bucket < (table._capacity-1))
+      {
+        cur_bucket++;
+      }
+      return it;
+
+    }
+
+    bool operator==(const ConstIterator& rhs) const
+    {
+      return (cur_bucket == rhs.cur_bucket && cur_index== rhs.cur_index);
+    }
+
+    bool operator!=(const ConstIterator& rhs) const
+    {
+      return (cur_bucket != rhs.cur_bucket || cur_index != rhs.cur_index);
+    }
+
+    reference operator*() const {return buckets[cur_bucket][cur_index]; }
+
+    pointer operator->() const { return &(operator*());}
   };
+
+
+
 
   using const_iterator = ConstIterator;
   const_iterator begin () const
-  { return ConstIterator (buckets[0][0]); }
+  {
+    return ConstIterator (*this, 0,0);
+  }
+  const_iterator end() const
+  {
+    return ConstIterator (*this, _capacity-1, buckets[_capacity-1].size());
+  }
+  const_iterator cbegin () const
+  {
+    return ConstIterator (*this, 0,0);
+  }
+  const_iterator cend() const
+  {
+    return ConstIterator (*this, _capacity-1, buckets[_capacity-1].size());
+  }
+
+
+
+
+
+
+
  private:
-  void update_linked_list();
   void update_load_factor ()
   { load_factor = _entries / double (_capacity); }
   void resize_array (size_t size);
-  int hash_function (const string &key) const;
+  int hash_function (const KeyT &key) const;
   int _capacity = INITIAL_SIZE;
   int _entries = 0;
   double load_factor = _entries / _capacity;
-  vector<std::pair<string, string>> *buckets;
+  vector<std::pair<KeyT, ValueT>> *buckets;
 };
 
 
 
-HashMap::HashMap ()
-{
-  buckets = new vector<std::pair<string, string>>[_capacity];
-}
 
-HashMap::HashMap (const vector<string> &keys, const vector<string> &values)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+template<typename KeyT, typename ValueT>
+HashMap<KeyT, ValueT>::HashMap ()
+{
+  buckets = new vector<std::pair<KeyT, ValueT>>[_capacity];
+}
+template<typename KeyT, typename ValueT>
+HashMap<KeyT, ValueT>::HashMap (const vector<KeyT> &keys, const vector<ValueT>
+    &values)
 {
   if (keys.size () != values.size ())
   {
     throw std::length_error ("Vectors are not in the same size");
   }
-  buckets = new vector<std::pair<string, string>>[_capacity];
+  buckets = new vector<std::pair<KeyT, ValueT>>[_capacity];
   for (int i = 0; i < keys.size (); i++)
   {
     if (contains_key (keys[i]))
@@ -117,10 +207,11 @@ HashMap::HashMap (const vector<string> &keys, const vector<string> &values)
   }
 }
 
-HashMap::HashMap (HashMap &other_map)
+template<typename KeyT, typename ValueT>
+HashMap<KeyT, ValueT>::HashMap (HashMap<KeyT, ValueT> &other_map)
 {
   _capacity = other_map._capacity;
-  buckets = new vector<std::pair<string, string>>[_capacity];
+  buckets = new vector<std::pair<KeyT, ValueT>>[_capacity];
   for (int bucket = 0; bucket < _capacity; bucket++)
   {
     for (auto &pair: other_map.buckets[bucket])
@@ -129,8 +220,8 @@ HashMap::HashMap (HashMap &other_map)
     }
   }
 }
-
-bool HashMap::insert (string key, string value)
+template<typename KeyT, typename ValueT>
+bool HashMap<KeyT, ValueT>::insert (KeyT key, ValueT value)
 {
   if (contains_key (key))
   { return false; }
@@ -143,11 +234,10 @@ bool HashMap::insert (string key, string value)
   {
     resize_array (_capacity * 2);
   }
-  update_linked_list();
   return true;
 }
-
-void HashMap::print_all ()
+template<typename KeyT, typename ValueT>
+void HashMap<KeyT, ValueT>::print_all ()
 {
   for (int i = 0; i < _capacity; i++)
   {
@@ -163,13 +253,13 @@ void HashMap::print_all ()
     endl (cout);
   }
 }
-
-HashMap::~HashMap ()
+template<typename KeyT, typename ValueT>
+HashMap<KeyT, ValueT>::~HashMap ()
 {
   delete[] buckets;
 }
-
-bool HashMap::contains_key (const string &key) const
+template<typename KeyT, typename ValueT>
+bool HashMap<KeyT, ValueT>::contains_key (const KeyT &key) const
 {
   int bucket = hash_function (key);
   for (const auto &pair: buckets[bucket])
@@ -181,15 +271,15 @@ bool HashMap::contains_key (const string &key) const
   }
   return false;
 }
-
-int HashMap::hash_function (const string &key) const
+template<typename KeyT, typename ValueT>
+int HashMap<KeyT, ValueT>::hash_function (const KeyT &key) const
 {
-  std::hash<string> hasher;
+  std::hash<KeyT> hasher;
   unsigned long place = hasher (key) & (_capacity - 1);
   return place;
 }
-
-const string &HashMap::at (const string key) const
+template<typename KeyT, typename ValueT>
+const ValueT & HashMap<KeyT, ValueT>::at (const KeyT &key) const
 {
   int bucket = hash_function (key);
   for (const auto &pair: buckets[bucket])
@@ -201,13 +291,12 @@ const string &HashMap::at (const string key) const
   }
   throw std::out_of_range ("Key doesn't exist");
 }
-
-void HashMap::resize_array (const size_t size)
+template<typename KeyT, typename ValueT>
+void HashMap<KeyT, ValueT>::resize_array (const size_t size)
 {
-  linked_list.clear();
   auto old_array = buckets;
   int old_capacity = _capacity;
-  buckets = new vector<std::pair<string, string>>[size];
+  buckets = new vector<std::pair<KeyT, ValueT>>[size];
   _capacity = size;
   _entries = 0;
   for (int bucket = 0; bucket < old_capacity; bucket++)
@@ -219,8 +308,8 @@ void HashMap::resize_array (const size_t size)
   }
   delete[] old_array;
 }
-
-bool HashMap::erase (const string key)
+template<typename KeyT, typename ValueT>
+bool HashMap<KeyT, ValueT>::erase (const KeyT &key)
 {
   if (!contains_key (key))
   { return false; }
@@ -241,27 +330,26 @@ bool HashMap::erase (const string key)
   {
     resize_array (_capacity / 2);
   }
-  update_linked_list();
   return true;
 }
-
-int HashMap::bucket_size (const string key) const
+template<typename KeyT, typename ValueT>
+int HashMap<KeyT, ValueT>::bucket_size (const KeyT &key) const
 {
   if (!contains_key (key))
   { throw std::out_of_range ("Key doesn't exist"); }
   int bucket = hash_function (key);
   return buckets[bucket].size ();
 }
-
-int HashMap::bucket_index (const string key) const
+template<typename KeyT, typename ValueT>
+int HashMap<KeyT, ValueT>::bucket_index (const KeyT &key) const
 {
   if (!contains_key (key))
   { throw std::out_of_range ("Key doesn't exist"); }
   return hash_function (key);
 
 }
-
-void HashMap::clear ()
+template<typename KeyT, typename ValueT>
+void HashMap<KeyT, ValueT>::clear ()
 {
   for (int i = 0; i < _capacity; i++)
   {
@@ -271,12 +359,12 @@ void HashMap::clear ()
   update_load_factor ();
 
 }
-
-string &HashMap::operator[] (string key)
+template<typename KeyT, typename ValueT>
+ValueT &HashMap<KeyT, ValueT>::operator[] (KeyT key)
 {
   if (!contains_key (key))
   {
-    insert (key, string ());
+    insert (key, ValueT ());
   }
   int bucket = hash_function (key);
   for (auto &pair: buckets[bucket])
@@ -287,12 +375,12 @@ string &HashMap::operator[] (string key)
     }
   }
 }
-
-const string HashMap::operator[] (string key) const
+template<typename KeyT, typename ValueT>
+const ValueT HashMap<KeyT, ValueT>::operator[] (KeyT key) const
 {
   if (!contains_key (key))
   {
-    return string ();
+    return ValueT ();
   }
   int bucket = hash_function (key);
   for (auto &pair: buckets[bucket])
@@ -303,8 +391,8 @@ const string HashMap::operator[] (string key) const
     }
   }
 }
-
-HashMap &HashMap::operator= (const HashMap &sec_hash_map)
+template<typename KeyT, typename ValueT>
+HashMap<KeyT, ValueT> &HashMap<KeyT, ValueT>::operator= (const HashMap &sec_hash_map)
 {
   if (&sec_hash_map == this)
   {
@@ -313,7 +401,7 @@ HashMap &HashMap::operator= (const HashMap &sec_hash_map)
   delete[] buckets;
   _entries = 0;
   _capacity = sec_hash_map._capacity;
-  buckets = new vector<std::pair<string, string>>[_capacity];
+  buckets = new vector<std::pair<KeyT, ValueT>>[_capacity];
   for (int bucket = 0; bucket < _capacity; bucket++)
   {
     for (auto &pair: sec_hash_map.buckets[bucket])
@@ -323,8 +411,8 @@ HashMap &HashMap::operator= (const HashMap &sec_hash_map)
   }
   return *this;
 }
-
-bool HashMap::operator== (const HashMap &other_map) const
+template<typename KeyT, typename ValueT>
+bool HashMap<KeyT, ValueT>::operator== (const HashMap<KeyT, ValueT> &other_map) const
 {
   if (_entries != other_map.size ())
   { return false; }
@@ -340,20 +428,7 @@ bool HashMap::operator== (const HashMap &other_map) const
   }
   return true;
 }
-void HashMap::update_linked_list ()
-{
-  for (int i =0; i<_capacity;i++)
-  {
-    if (!buckets[i].empty())
-    {
-      if (linked_list.end() == std::find (linked_list.begin(), linked_list
-      .end(), &buckets[i]))
-      {
-        linked_list.push_front (&buckets[i]);
-      }
 
-    }
-  }
-}
+
 
 #endif //_HASHMAP_HPP_
