@@ -20,29 +20,58 @@ using std::endl;
 #define INITIAL_SIZE 16
 #define DEFAULT_LOWER_LOAD 0.25
 #define DEFAULT_UPPER_LOAD 0.75
+#define WRONG_SIZE_VECTORS "Vectors are not in the same size"
 template<typename KeyT, typename ValueT>
 class HashMap
 {
  public:
-
-  HashMap ();
+  /*  Constructors  */
+  HashMap ();  // default ctr
+  // vectors ctr
   HashMap (const vector<KeyT> &keys, const vector<ValueT> &values);
+  // copy ctr
   HashMap (HashMap &other_map);
-  int bucket_size (const KeyT &key) const;
+  ~HashMap (); // destructor
+
+  /*    Short Methods  */
+  /**
+   * returns capacity
+   * @return int
+   */
   int capacity () const
   { return _capacity; }
-  int bucket_index (const KeyT &key) const;
-  void clear ();
+
+  /**
+   * return number of elements in map
+   * @return int
+   */
   int size () const
   { return _entries; }
+
+  /**
+   * checks if map is empty
+   * @return true if map is empty, false otherwise
+   */
   bool empty () const
   { return _entries == 0; }
+
+  /**
+   * returns load factor of map
+   * @return double
+   */
   double get_load_factor () const
   { return load_factor; }
-  const ValueT & at (const KeyT &key) const; //TODO: implement const
+
+  /*     Methods      */
+  int bucket_size (const KeyT &key) const;
+  int bucket_index (const KeyT &key) const;
+  void clear ();
+  const ValueT &at (const KeyT &key) const; //TODO: implement const
   bool insert (KeyT key, ValueT value);
   bool contains_key (const KeyT &key) const;
   bool erase (const KeyT &key);
+
+  /*    operators      */
   ValueT &operator[] (KeyT key);
   const ValueT operator[] (KeyT key) const;  //TODO: implement const
   HashMap &operator= (const HashMap &sec_hash_map);
@@ -50,8 +79,6 @@ class HashMap
   bool operator!= (const HashMap &other_map) const
   { return !(*this == other_map); }
   void print_all (); //TODO: delete
-  ~HashMap ();
-
 
   class ConstIterator
   {
@@ -69,10 +96,11 @@ class HashMap
     typedef std::forward_iterator_tag iterator_category;
 
     ConstIterator (const HashMap &table, int cur_bucket_in, int cur_index_in) :
-    buckets(table.buckets), cur_bucket(cur_bucket_in), cur_index(cur_index_in),
-    table(const_cast<HashMap &>(table))
+        buckets (table.buckets), cur_bucket (cur_bucket_in), cur_index (cur_index_in),
+        table (const_cast<HashMap &>(table))
     {
-      while (buckets[cur_bucket].empty() && cur_bucket < (table._capacity-1))
+      while (buckets[cur_bucket].empty ()
+             && cur_bucket < (table._capacity - 1))
       {
         cur_bucket++;
       }
@@ -80,14 +108,15 @@ class HashMap
 
     ConstIterator &operator++ ()
     {
-      if (buckets[cur_bucket].size() > (cur_index+1))
+      if (buckets[cur_bucket].size () > (cur_index + 1))
       {
         cur_index++;
         return *this;
       }
-      cur_index =0;
+      cur_index = 0;
       cur_bucket++;
-      while (buckets[cur_bucket].empty() && cur_bucket < (table._capacity-1))
+      while (buckets[cur_bucket].empty ()
+             && cur_bucket < (table._capacity - 1))
       {
         cur_bucket++;
       }
@@ -95,17 +124,18 @@ class HashMap
 
     }
 
-    ConstIterator operator++(int)
+    ConstIterator operator++ (int)
     {
-      ConstIterator it(table, cur_bucket, cur_index);
-      if (buckets[cur_bucket].size() > (cur_index+1))
+      ConstIterator it (table, cur_bucket, cur_index);
+      if (buckets[cur_bucket].size () > (cur_index + 1))
       {
         cur_index++;
         return it;
       }
-      cur_index =0;
+      cur_index = 0;
       cur_bucket++;
-      while (buckets[cur_bucket].empty() && cur_bucket < (table._capacity-1))
+      while (buckets[cur_bucket].empty ()
+             && cur_bucket < (table._capacity - 1))
       {
         cur_bucket++;
       }
@@ -113,75 +143,63 @@ class HashMap
 
     }
 
-    bool operator==(const ConstIterator& rhs) const
+    bool operator== (const ConstIterator &rhs) const
     {
-      return (cur_bucket == rhs.cur_bucket && cur_index== rhs.cur_index);
+      return (cur_bucket == rhs.cur_bucket && cur_index == rhs.cur_index);
     }
 
-    bool operator!=(const ConstIterator& rhs) const
+    bool operator!= (const ConstIterator &rhs) const
     {
       return (cur_bucket != rhs.cur_bucket || cur_index != rhs.cur_index);
     }
 
-    reference operator*() const {return buckets[cur_bucket][cur_index]; }
+    reference operator* () const
+    { return buckets[cur_bucket][cur_index]; }
 
-    pointer operator->() const { return &(operator*());}
+    pointer operator-> () const
+    { return &(operator* ()); }
   };
-
-
-
 
   using const_iterator = ConstIterator;
   const_iterator begin () const
-  {
-    return ConstIterator (*this, 0,0);
-  }
-  const_iterator end() const
-  {
-    return ConstIterator (*this, _capacity-1, buckets[_capacity-1].size());
-  }
+  { return ConstIterator (*this, 0, 0); }
   const_iterator cbegin () const
+  { return ConstIterator (*this, 0, 0); }
+  const_iterator end () const
   {
-    return ConstIterator (*this, 0,0);
+    return ConstIterator (*this,
+                          _capacity - 1, buckets[_capacity - 1].size ());
   }
-  const_iterator cend() const
+  const_iterator cend () const
   {
-    return ConstIterator (*this, _capacity-1, buckets[_capacity-1].size());
+    return ConstIterator (*this,
+                          _capacity - 1, buckets[_capacity - 1].size ());
   }
-
-
-
-
-
-
 
  private:
+  /**
+   * updates load factor after each insertion or erase
+   */
   void update_load_factor ()
   { load_factor = _entries / double (_capacity); }
+
+  /**
+   * resize array if load_factor passes lower or upper load
+   * @param size new capacity
+   */
   void resize_array (size_t size);
+
+  /**
+   * calculates hash function for key
+   * @param key given key
+   * @return bucket to place into
+   */
   int hash_function (const KeyT &key) const;
   int _capacity = INITIAL_SIZE;
   int _entries = 0;
   double load_factor = _entries / _capacity;
-  vector<std::pair<KeyT, ValueT>> *buckets;
+  vector<std::pair<KeyT, ValueT>> *buckets;  // array of vectors
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 template<typename KeyT, typename ValueT>
 HashMap<KeyT, ValueT>::HashMap ()
@@ -190,11 +208,11 @@ HashMap<KeyT, ValueT>::HashMap ()
 }
 template<typename KeyT, typename ValueT>
 HashMap<KeyT, ValueT>::HashMap (const vector<KeyT> &keys, const vector<ValueT>
-    &values)
+&values)
 {
   if (keys.size () != values.size ())
   {
-    throw std::length_error ("Vectors are not in the same size");
+    throw std::length_error (WRONG_SIZE_VECTORS);
   }
   buckets = new vector<std::pair<KeyT, ValueT>>[_capacity];
   for (int i = 0; i < keys.size (); i++)
@@ -279,7 +297,7 @@ int HashMap<KeyT, ValueT>::hash_function (const KeyT &key) const
   return place;
 }
 template<typename KeyT, typename ValueT>
-const ValueT & HashMap<KeyT, ValueT>::at (const KeyT &key) const
+const ValueT &HashMap<KeyT, ValueT>::at (const KeyT &key) const
 {
   int bucket = hash_function (key);
   for (const auto &pair: buckets[bucket])
@@ -392,7 +410,8 @@ const ValueT HashMap<KeyT, ValueT>::operator[] (KeyT key) const
   }
 }
 template<typename KeyT, typename ValueT>
-HashMap<KeyT, ValueT> &HashMap<KeyT, ValueT>::operator= (const HashMap &sec_hash_map)
+HashMap<KeyT, ValueT> &
+HashMap<KeyT, ValueT>::operator= (const HashMap &sec_hash_map)
 {
   if (&sec_hash_map == this)
   {
@@ -412,7 +431,8 @@ HashMap<KeyT, ValueT> &HashMap<KeyT, ValueT>::operator= (const HashMap &sec_hash
   return *this;
 }
 template<typename KeyT, typename ValueT>
-bool HashMap<KeyT, ValueT>::operator== (const HashMap<KeyT, ValueT> &other_map) const
+bool
+HashMap<KeyT, ValueT>::operator== (const HashMap<KeyT, ValueT> &other_map) const
 {
   if (_entries != other_map.size ())
   { return false; }
@@ -428,7 +448,5 @@ bool HashMap<KeyT, ValueT>::operator== (const HashMap<KeyT, ValueT> &other_map) 
   }
   return true;
 }
-
-
 
 #endif //_HASHMAP_HPP_
