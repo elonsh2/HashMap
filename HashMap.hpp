@@ -223,7 +223,7 @@ class HashMap
                           _capacity - 1, buckets[_capacity - 1].size ());
   }
 
- private:
+ protected:
   /**
    * updates load factor after each insertion or erase
    */
