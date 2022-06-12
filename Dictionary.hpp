@@ -5,11 +5,11 @@
 
 
 
- class invalid_key : public std::invalid_argument
+ class InvalidKey : public std::invalid_argument
  {
   public:
-    invalid_key(): std::invalid_argument (KEY_NOT_FOUND) {}
-    invalid_key(const string &str): std::invalid_argument (str) {}
+   InvalidKey(): std::invalid_argument (KEY_NOT_FOUND) {}
+   InvalidKey(const string &str): std::invalid_argument (str) {}
  };
 
 class Dictionary : public HashMap<string ,string>
@@ -38,7 +38,7 @@ bool Dictionary::erase (const string &key)
   // throws exception if key doesnt exist
   if (!HashMap::erase (key))
   {
-    throw invalid_key ();
+    throw InvalidKey ();
   }
   return true;
 }

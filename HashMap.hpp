@@ -118,8 +118,8 @@ class HashMap
   ValueT &operator[] (KeyT key);
   const ValueT &operator[] (KeyT key) const;  //TODO: implement const
   HashMap &operator= (const HashMap &sec_hash_map);
-  bool operator== (const HashMap &other_map) const;
-  bool operator!= (const HashMap &other_map) const
+  bool operator== ( const HashMap &other_map) const;
+  bool operator!= ( const HashMap &other_map) const
   { return !(*this == other_map); }
   void print_all (); //TODO: delete
 
@@ -243,7 +243,7 @@ class HashMap
    * resize array if load_factor passes lower or upper load
    * @param size new capacity
    */
-  void resize_array (const size_t size, bool flag=false);
+  void resize_array (size_t size, bool flag=false);
 
   /**
    * calculates hash function for key
@@ -508,7 +508,8 @@ const ValueT &HashMap<KeyT, ValueT>::operator[] (KeyT key) const
 {
   if (!contains_key (key))
   {
-    return ValueT ();
+    auto &last_bucket = buckets[_capacity-1];
+    auto test = last_bucket[last_bucket.size()];
   }
   // uses const at
   return at(key);
@@ -548,8 +549,12 @@ bool HashMap<KeyT, ValueT>::operator==
   // checks that each entry is in second map
   for (int i = 0; i < _capacity; i++)
   {
-    for (const auto &pair: buckets[i])
+    for (auto &pair: buckets[i])
     {
+      if (!other_map.contains_key (pair.first))
+      {
+        return false;
+      }
       if (other_map[pair.first] != pair.second)
       {
         return false;
