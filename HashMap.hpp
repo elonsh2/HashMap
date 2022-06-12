@@ -89,6 +89,7 @@ class HashMap
    * @return ValueT
    */
   const ValueT &at (const KeyT &key) const; //TODO: implement const
+  ValueT &at (const KeyT &key) ; //TODO: implement const
 
   /**
    * insert key and his value to map
@@ -375,6 +376,21 @@ const ValueT &HashMap<KeyT, ValueT>::at (const KeyT &key) const
 }
 
 template<typename KeyT, typename ValueT>
+ValueT &HashMap<KeyT, ValueT>::at (const KeyT &key)
+{
+  // calculates hash and search in bucket
+  int bucket = hash_function (key);
+  for (auto &pair: buckets[bucket])
+  {
+    if (pair.first == key)
+    {
+      return pair.second;
+    }
+  }
+  throw std::out_of_range (KEY_NOT_FOUND);
+}
+
+template<typename KeyT, typename ValueT>
 void HashMap<KeyT, ValueT>::resize_array (const size_t size)
 {
   auto old_array = buckets;
@@ -461,14 +477,8 @@ ValueT &HashMap<KeyT, ValueT>::operator[] (KeyT key)
   {
     insert (key, ValueT ());
   }
-  int bucket = hash_function (key);
-  for (auto &pair: buckets[bucket])
-  {
-    if (pair.first == key)
-    {
-      return pair.second;
-    }
-  }
+  // uses non const at
+  return at(key);
 }
 
 template<typename KeyT, typename ValueT>
@@ -478,14 +488,8 @@ ValueT HashMap<KeyT, ValueT>::operator[] (KeyT key) const
   {
     return ValueT ();
   }
-  int bucket = hash_function (key);
-  for (auto &pair: buckets[bucket])
-  {
-    if (pair.first == key)
-    {
-      return pair.second;
-    }
-  }
+  // uses const at
+  return at(key);
 }
 
 template<typename KeyT, typename ValueT>
@@ -532,5 +536,6 @@ bool HashMap<KeyT, ValueT>::operator==
   }
   return true;
 }
+
 
 #endif //_HASHMAP_HPP_
