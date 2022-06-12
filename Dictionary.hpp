@@ -9,6 +9,7 @@
  {
   public:
     invalid_key(): std::invalid_argument (KEY_NOT_FOUND) {}
+    invalid_key(const string &str): std::invalid_argument (str) {}
  };
 
 class Dictionary : public HashMap<string ,string>

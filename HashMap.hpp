@@ -116,7 +116,7 @@ class HashMap
   /*    operators      */
 
   ValueT &operator[] (KeyT key);
-  ValueT operator[] (KeyT key) const;  //TODO: implement const
+  const ValueT &operator[] (KeyT key) const;  //TODO: implement const
   HashMap &operator= (const HashMap &sec_hash_map);
   bool operator== (const HashMap &other_map) const;
   bool operator!= (const HashMap &other_map) const
@@ -232,7 +232,7 @@ class HashMap
     return ConstIterator (*this,last_bucket, buckets[last_bucket].size ());
   }
 
- protected:
+ private:
   /**
    * updates load factor after each insertion or erase
    */
@@ -243,7 +243,7 @@ class HashMap
    * resize array if load_factor passes lower or upper load
    * @param size new capacity
    */
-  void resize_array (size_t size);
+  void resize_array (const size_t size, bool flag=false);
 
   /**
    * calculates hash function for key
@@ -280,9 +280,10 @@ HashMap<KeyT, ValueT>::HashMap (const vector<KeyT> &keys, const vector<ValueT>
   {
     if (contains_key (keys[i]))
     {
-      erase (keys[i]); // TODO: check, erase or just change;
+      at(keys[i]) = values[i]; // TODO: check, erase or just change;
     }
-    insert (keys[i], values[i]);
+    else
+    { insert (keys[i], values[i]); }
   }
 }
 
@@ -400,13 +401,25 @@ ValueT &HashMap<KeyT, ValueT>::at (const KeyT &key)
 }
 
 template<typename KeyT, typename ValueT>
-void HashMap<KeyT, ValueT>::resize_array (const size_t size)
+void HashMap<KeyT, ValueT>::resize_array (const size_t size, bool flag)
 {
   auto old_array = buckets;
   int old_capacity = _capacity;
   // creates new array in given size
-  buckets = new vector<std::pair<KeyT, ValueT>>[size];
+
   _capacity = size;
+  update_load_factor();
+  if (flag)
+  {
+    while (load_factor < DEFAULT_LOWER_LOAD)
+    {
+      _capacity = _capacity / 2;
+      update_load_factor();
+      if (_capacity==1)
+      { break;}
+    }
+  }
+  buckets = new vector<std::pair<KeyT, ValueT>>[_capacity];
   _entries = 0;
   // insert all items from old array to new array
   for (int bucket = 0; bucket < old_capacity; bucket++)
@@ -443,7 +456,7 @@ bool HashMap<KeyT, ValueT>::erase (const KeyT &key)
   // checks if map needs to change size
   if (load_factor < DEFAULT_LOWER_LOAD)
   {
-    resize_array (_capacity / 2);
+    resize_array (_capacity / 2, true);
   }
   return true;
 }
@@ -491,7 +504,7 @@ ValueT &HashMap<KeyT, ValueT>::operator[] (KeyT key)
 }
 
 template<typename KeyT, typename ValueT>
-ValueT HashMap<KeyT, ValueT>::operator[] (KeyT key) const
+const ValueT &HashMap<KeyT, ValueT>::operator[] (KeyT key) const
 {
   if (!contains_key (key))
   {
