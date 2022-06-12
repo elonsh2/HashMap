@@ -106,7 +106,7 @@ class HashMap
    */
   bool contains_key (const KeyT &key) const;
 
-  /**
+  virtual /**
    * deletes specific key and his value
    * @param key KeyT
    * @return true if erased, false if key not in map
@@ -153,26 +153,35 @@ class HashMap
 
     ConstIterator &operator++ ()
     {
+      if (cur_bucket == table._capacity-1 && cur_index== buckets[cur_bucket]
+                                                             .size()-1)
+      {cur_index++;
+        return *this;}
       // if there's more elements in bucket, updates index
-      if (buckets[cur_bucket].size () > (cur_index + 1))
+      if (buckets[cur_bucket].size () > (cur_index+1))
       {
         cur_index++;
         return *this;
       }
       // resets index and searches for first element in next buckets
+      if (cur_bucket < table._capacity -1)
+      {cur_bucket++;}
       cur_index = 0;
-      cur_bucket++;
       while (buckets[cur_bucket].empty ()
              && cur_bucket < (table._capacity - 1))
       {
         cur_bucket++;
       }
+
       return *this;
     }
 
     ConstIterator operator++ (int)
     {
       // same as pre increment
+      if (cur_bucket == table._capacity-1 && cur_index== buckets[cur_bucket]
+                                                             .size()-1)
+      {cur_index++;}
       ConstIterator it (table, cur_bucket, cur_index);
       if (buckets[cur_bucket].size () > (cur_index + 1))
       {
@@ -214,13 +223,13 @@ class HashMap
   // end points to  one past last element in last bucket
   const_iterator end () const
   {
-    return ConstIterator (*this,
-                          _capacity - 1, buckets[_capacity - 1].size ());
+    int last_bucket = _capacity - 1;
+    return ConstIterator (*this,last_bucket, buckets[last_bucket].size ());
   }
   const_iterator cend () const
   {
-    return ConstIterator (*this,
-                          _capacity - 1, buckets[_capacity - 1].size ());
+    int last_bucket = _capacity - 1;
+    return ConstIterator (*this,last_bucket, buckets[last_bucket].size ());
   }
 
  protected:
