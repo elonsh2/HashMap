@@ -460,7 +460,6 @@ ValueT &HashMap<KeyT, ValueT>::operator[] (KeyT key)
   if (!contains_key (key))
   {
     insert (key, ValueT ());
-    return ValueT();
   }
   int bucket = hash_function (key);
   for (auto &pair: buckets[bucket])
