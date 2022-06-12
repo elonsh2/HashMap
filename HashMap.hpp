@@ -508,8 +508,8 @@ const ValueT &HashMap<KeyT, ValueT>::operator[] (KeyT key) const
 {
   if (!contains_key (key))
   {
-    auto &last_bucket = buckets[_capacity-1];
-    auto test = last_bucket[last_bucket.size()];
+    auto last_bucket = buckets[_capacity-1];
+    return last_bucket[last_bucket.size()].second; // will throw seg fault
   }
   // uses const at
   return at(key);
