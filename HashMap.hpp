@@ -126,10 +126,10 @@ class HashMap
   class ConstIterator
   {
    private:
-    HashMap &table;
     vector<std::pair<KeyT, ValueT>> *buckets;
     int cur_bucket;
     int cur_index;
+    HashMap &table;
 
    public:
     typedef std::pair<KeyT, ValueT> value_type;
@@ -266,7 +266,7 @@ HashMap<KeyT, ValueT>::HashMap (const vector<KeyT> &keys, const vector<ValueT>
   }
   buckets = new vector<std::pair<KeyT, ValueT>>[_capacity];
   // updates map with vectors
-  for (int i = 0; i < keys.size (); i++)
+  for (size_t i = 0; i < keys.size (); i++)
   {
     if (contains_key (keys[i]))
     {
@@ -460,6 +460,7 @@ ValueT &HashMap<KeyT, ValueT>::operator[] (KeyT key)
   if (!contains_key (key))
   {
     insert (key, ValueT ());
+    return ValueT();
   }
   int bucket = hash_function (key);
   for (auto &pair: buckets[bucket])
