@@ -21,7 +21,7 @@ class Dictionary : public HashMap<string ,string>
       HashMap<string, string>(keys, values) {}
       // copy ctr
   Dictionary(Dictionary& other_dict) : HashMap<string, string>(other_dict) {}
-  bool erase (const string &key);
+  bool erase (const string &key) override;
 
   /**
  * gets an iterator and updates dict

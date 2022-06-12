@@ -32,7 +32,7 @@ class HashMap
   HashMap (const vector<KeyT> &keys, const vector<ValueT> &values);
   // copy ctr
   HashMap (HashMap &other_map);
-  ~HashMap (); // destructor
+  virtual ~HashMap (); // destructor
 
   /*    Short Methods  */
   /**
@@ -111,7 +111,7 @@ class HashMap
    * @param key KeyT
    * @return true if erased, false if key not in map
    */
-  bool erase (const KeyT &key);
+  virtual bool erase (const KeyT &key);
 
   /*    operators      */
 
