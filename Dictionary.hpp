@@ -15,7 +15,7 @@
 class Dictionary : public HashMap<string ,string>
 {
  public:
-  Dictionary():HashMap<string, string>() {}
+  Dictionary() = default;
   Dictionary(const vector<string>& keys, const vector<string>& values):
       HashMap<string, string>(keys, values) {}
   Dictionary(Dictionary& other_dict) : HashMap<string, string>(other_dict) {}
