@@ -20,7 +20,7 @@ class Dictionary : public HashMap<string ,string>
       HashMap<string, string>(keys, values) {}
   Dictionary(Dictionary& other_dict) : HashMap<string, string>(other_dict) {}
 
-  bool erase (const string &key) override;
+  bool erase (const string &key);
   template<typename Iterator>
   void update(Iterator begin, Iterator end);
 };

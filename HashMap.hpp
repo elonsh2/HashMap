@@ -106,7 +106,7 @@ class HashMap
    */
   bool contains_key (const KeyT &key) const;
 
-  virtual /**
+   /**
    * deletes specific key and his value
    * @param key KeyT
    * @return true if erased, false if key not in map
