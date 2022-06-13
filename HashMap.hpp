@@ -195,14 +195,14 @@ class HashMap
 
     bool operator== (const ConstIterator &rhs) const
     {
-      if(&buckets != &rhs.buckets)
+      if(buckets != rhs.buckets)
       {return false;}
       return (cur_bucket == rhs.cur_bucket && cur_index == rhs.cur_index);
     }
 
     bool operator!= (const ConstIterator &rhs) const
     {
-      return (!(*this == rhs));
+      return (!(*this==rhs));
     }
 
     reference operator* () const
