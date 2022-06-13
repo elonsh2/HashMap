@@ -83,8 +83,8 @@ class HashMap
    * @param key KeyT
    * @return ValueT
    */
-  const ValueT &at (const KeyT &key) const; //TODO: implement const
-  ValueT &at (const KeyT &key) ; //TODO: implement const
+  const ValueT &at (const KeyT &key) const;
+  ValueT &at (const KeyT &key) ;
 
   /**
    * insert key and his value to map
@@ -111,12 +111,12 @@ class HashMap
   /*    operators      */
 
   ValueT &operator[] (KeyT key);
-  const ValueT &operator[] (KeyT key) const;  //TODO: implement const
+  const ValueT &operator[] (KeyT key) const;
   HashMap &operator= (const HashMap &sec_hash_map);
   bool operator== ( const HashMap &other_map) const;
   bool operator!= ( const HashMap &other_map) const
   { return !(*this == other_map); }
-  void print_all (); //TODO: delete
+
 
   /*      Iterator class & methods      */
   class ConstIterator
@@ -314,24 +314,6 @@ bool HashMap<KeyT, ValueT>::insert (KeyT key, ValueT value)
     resize_array (_capacity * 2);
   }
   return true;
-}
-
-template<typename KeyT, typename ValueT>
-void HashMap<KeyT, ValueT>::print_all () //TODO: delete
-{
-  for (int i = 0; i < _capacity; i++)
-  {
-    if (buckets[i].empty ())
-    {
-      continue;
-    }
-    for (const auto &pair: buckets[i])
-    {
-      cout << "(" << pair.first
-           << ", " << pair.second << "), ";
-    }
-    endl (cout);
-  }
 }
 
 template<typename KeyT, typename ValueT>
