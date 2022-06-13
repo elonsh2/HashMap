@@ -195,12 +195,14 @@ class HashMap
 
     bool operator== (const ConstIterator &rhs) const
     {
+      if(&buckets != &rhs.buckets)
+      {return false;}
       return (cur_bucket == rhs.cur_bucket && cur_index == rhs.cur_index);
     }
 
     bool operator!= (const ConstIterator &rhs) const
     {
-      return (cur_bucket != rhs.cur_bucket || cur_index != rhs.cur_index);
+      return (!(*this == rhs));
     }
 
     reference operator* () const
@@ -520,23 +522,16 @@ template<typename KeyT, typename ValueT>
 bool HashMap<KeyT, ValueT>::operator==
     (const HashMap<KeyT, ValueT> &other_map) const
 {
-  // returns false if maps are diffrent sizes
+  // returns false if maps are different sizes
   if (_entries != other_map.size ())
   { return false; }
   // checks that each entry is in second map
-  for (int i = 0; i < _capacity; i++)
+  for (const auto& pair: *this)
   {
-    for (auto &pair: buckets[i])
-    {
-      if (!other_map.contains_key (pair.first))
-      {
-        return false;
-      }
-      if (other_map[pair.first] != pair.second)
-      {
-        return false;
-      }
-    }
+    if (!other_map.contains_key (pair.first))
+    {return false;}
+    if (other_map[pair.first] != pair.second)
+    {return false;}
   }
   return true;
 }
