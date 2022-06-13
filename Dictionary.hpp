@@ -40,9 +40,7 @@ bool Dictionary::erase (const string &key)
 {
   // throws exception if key doesnt exist
   if (!HashMap::erase (key))
-  {
-    throw InvalidKey ();
-  }
+  { throw InvalidKey (); }
   return true;
 }
 
@@ -55,11 +53,8 @@ void Dictionary::update (Iterator begin, Iterator end)
   // same as vector constructor
   for (auto &it = begin; it != end; ++it)
   {
-
     if (contains_key (it->first))
-    {
-      at (it->first) = it->second;
-    }
+    { at (it->first) = it->second; }
     else
     { insert (it->first, it->second); }
   }

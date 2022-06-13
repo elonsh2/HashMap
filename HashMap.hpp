@@ -124,7 +124,7 @@ class HashMap
     vector<std::pair<KeyT, ValueT>> *buckets;
     int cur_bucket;
     int cur_index;
-    HashMap &table;
+    const HashMap &table;
 
    public:
     typedef std::pair<KeyT, ValueT> value_type;
@@ -135,7 +135,7 @@ class HashMap
 
     ConstIterator (const HashMap &table, int cur_bucket_in, int cur_index_in) :
         buckets (table.buckets), cur_bucket (cur_bucket_in),
-        cur_index (cur_index_in), table (const_cast<HashMap &>(table))
+        cur_index (cur_index_in), table (table)
     {
       // finds first element in map
       while (buckets[cur_bucket].empty ()
@@ -168,17 +168,16 @@ class HashMap
       {
         cur_bucket++;
       }
-
       return *this;
     }
 
     ConstIterator operator++ (int)
     {
       // same as pre increment
-      if (cur_bucket == table._capacity - 1 && cur_index == buckets[cur_bucket]
-                                                                .size () - 1)
-      { cur_index++; }
       ConstIterator it (table, cur_bucket, cur_index);
+      if (cur_bucket == table._capacity - 1 &&
+          cur_index == buckets[cur_bucket].size () - 1)
+      { cur_index++; }
       if (buckets[cur_bucket].size () > (cur_index + 1))
       {
         cur_index++;
