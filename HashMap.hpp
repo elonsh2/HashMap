@@ -84,7 +84,7 @@ class HashMap
    * @return ValueT
    */
   const ValueT &at (const KeyT &key) const;
-  ValueT &at (const KeyT &key) ;
+  ValueT &at (const KeyT &key);
 
   /**
    * insert key and his value to map
@@ -101,11 +101,11 @@ class HashMap
    */
   bool contains_key (const KeyT &key) const;
 
-   /**
-   * deletes specific key and his value
-   * @param key KeyT
-   * @return true if erased, false if key not in map
-   */
+  /**
+  * deletes specific key and his value
+  * @param key KeyT
+  * @return true if erased, false if key not in map
+  */
   virtual bool erase (const KeyT &key);
 
   /*    operators      */
@@ -113,10 +113,9 @@ class HashMap
   ValueT &operator[] (KeyT key);
   const ValueT &operator[] (KeyT key) const;
   HashMap &operator= (const HashMap &sec_hash_map);
-  bool operator== ( const HashMap &other_map) const;
-  bool operator!= ( const HashMap &other_map) const
+  bool operator== (const HashMap &other_map) const;
+  bool operator!= (const HashMap &other_map) const
   { return !(*this == other_map); }
-
 
   /*      Iterator class & methods      */
   class ConstIterator
@@ -134,7 +133,7 @@ class HashMap
     typedef std::ptrdiff_t difference_type;
     typedef std::forward_iterator_tag iterator_category;
 
-    ConstIterator (const HashMap &table, int cur_bucket_in, int cur_index_in):
+    ConstIterator (const HashMap &table, int cur_bucket_in, int cur_index_in) :
         buckets (table.buckets), cur_bucket (cur_bucket_in),
         cur_index (cur_index_in), table (const_cast<HashMap &>(table))
     {
@@ -148,19 +147,21 @@ class HashMap
 
     ConstIterator &operator++ ()
     {
-      if (cur_bucket == table._capacity-1 && cur_index== buckets[cur_bucket]
-                                                             .size()-1)
-      {cur_index++;
-        return *this;}
+      if (cur_bucket == table._capacity - 1 &&
+          cur_index == (int) buckets[cur_bucket].size () - 1)
+      {
+        cur_index++;
+        return *this;
+      }
       // if there's more elements in bucket, updates index
-      if (buckets[cur_bucket].size () > (cur_index+1))
+      if ((int) buckets[cur_bucket].size () > (cur_index + 1))
       {
         cur_index++;
         return *this;
       }
       // resets index and searches for first element in next buckets
-      if (cur_bucket < table._capacity -1)
-      {cur_bucket++;}
+      if (cur_bucket < table._capacity - 1)
+      { cur_bucket++; }
       cur_index = 0;
       while (buckets[cur_bucket].empty ()
              && cur_bucket < (table._capacity - 1))
@@ -174,9 +175,9 @@ class HashMap
     ConstIterator operator++ (int)
     {
       // same as pre increment
-      if (cur_bucket == table._capacity-1 && cur_index== buckets[cur_bucket]
-                                                             .size()-1)
-      {cur_index++;}
+      if (cur_bucket == table._capacity - 1 && cur_index == buckets[cur_bucket]
+                                                                .size () - 1)
+      { cur_index++; }
       ConstIterator it (table, cur_bucket, cur_index);
       if (buckets[cur_bucket].size () > (cur_index + 1))
       {
@@ -195,14 +196,14 @@ class HashMap
 
     bool operator== (const ConstIterator &rhs) const
     {
-      if(buckets != rhs.buckets)
-      {return false;}
+      if (buckets != rhs.buckets)
+      { return false; }
       return (cur_bucket == rhs.cur_bucket && cur_index == rhs.cur_index);
     }
 
     bool operator!= (const ConstIterator &rhs) const
     {
-      return (!(*this==rhs));
+      return (!(*this == rhs));
     }
 
     reference operator* () const
@@ -221,12 +222,12 @@ class HashMap
   const_iterator end () const
   {
     int last_bucket = _capacity - 1;
-    return ConstIterator (*this,last_bucket, buckets[last_bucket].size ());
+    return ConstIterator (*this, last_bucket, buckets[last_bucket].size ());
   }
   const_iterator cend () const
   {
     int last_bucket = _capacity - 1;
-    return ConstIterator (*this,last_bucket, buckets[last_bucket].size ());
+    return ConstIterator (*this, last_bucket, buckets[last_bucket].size ());
   }
 
  private:
@@ -240,7 +241,7 @@ class HashMap
    * resize array if load_factor passes lower or upper load
    * @param size new capacity
    */
-  void resize_array (size_t size, bool flag=false);
+  void resize_array (size_t size, bool flag = false);
 
   /**
    * calculates hash function for key
@@ -277,7 +278,7 @@ HashMap<KeyT, ValueT>::HashMap (const vector<KeyT> &keys, const vector<ValueT>
   {
     if (contains_key (keys[i]))
     {
-      at(keys[i]) = values[i];
+      at (keys[i]) = values[i];
     }
     else
     { insert (keys[i], values[i]); }
@@ -387,15 +388,15 @@ void HashMap<KeyT, ValueT>::resize_array (const size_t size, bool flag)
   // creates new array in given size
 
   _capacity = size;
-  update_load_factor();
+  update_load_factor ();
   if (flag)
   {
     while (load_factor < DEFAULT_LOWER_LOAD)
     {
       _capacity = _capacity / 2;
-      update_load_factor();
-      if (_capacity==1)
-      { break;}
+      update_load_factor ();
+      if (_capacity == 1)
+      { break; }
     }
   }
   buckets = new vector<std::pair<KeyT, ValueT>>[_capacity];
@@ -479,7 +480,7 @@ ValueT &HashMap<KeyT, ValueT>::operator[] (KeyT key)
     insert (key, ValueT ());
   }
   // uses non const at
-  return at(key);
+  return at (key);
 }
 
 template<typename KeyT, typename ValueT>
@@ -487,11 +488,11 @@ const ValueT &HashMap<KeyT, ValueT>::operator[] (KeyT key) const
 {
   if (!contains_key (key))
   {
-    auto last_bucket = buckets[_capacity-1];
-    return last_bucket[last_bucket.size()].second; // will throw seg fault
+    auto last_bucket = buckets[_capacity - 1];
+    return last_bucket[last_bucket.size ()].second; // will throw seg fault
   }
   // uses const at
-  return at(key);
+  return at (key);
 }
 
 template<typename KeyT, typename ValueT>
@@ -526,15 +527,14 @@ bool HashMap<KeyT, ValueT>::operator==
   if (_entries != other_map.size ())
   { return false; }
   // checks that each entry is in second map
-  for (const auto& pair: *this)
+  for (const auto &pair: *this)
   {
     if (!other_map.contains_key (pair.first))
-    {return false;}
+    { return false; }
     if (other_map[pair.first] != pair.second)
-    {return false;}
+    { return false; }
   }
   return true;
 }
-
 
 #endif //_HASHMAP_HPP_

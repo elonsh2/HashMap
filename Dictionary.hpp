@@ -3,26 +3,28 @@
 #ifndef _DICTIONARY_HPP_
 #define _DICTIONARY_HPP_
 
+class InvalidKey : public std::invalid_argument
+{
+ public:
+  InvalidKey () : std::invalid_argument (KEY_NOT_FOUND)
+  {}
+  InvalidKey (const string &str) : std::invalid_argument (str)
+  {}
+};
 
-
- class InvalidKey : public std::invalid_argument
- {
-  public:
-   InvalidKey(): std::invalid_argument (KEY_NOT_FOUND) {}
-   InvalidKey(const string &str): std::invalid_argument (str) {}
- };
-
-class Dictionary : public HashMap<string ,string>
+class Dictionary : public HashMap<string, string>
 {
  public:
   // default ctr
-  Dictionary() = default;
+  Dictionary () = default;
   // vectors ctr
-  Dictionary(const vector<string>& keys, const vector<string>& values):
-      HashMap<string, string>(keys, values) {}
-      // copy ctr
-  Dictionary(const Dictionary& other_dict) : HashMap<string, string>
-      (other_dict) {}
+  Dictionary (const vector<string> &keys, const vector<string> &values) :
+      HashMap<string, string> (keys, values)
+  {}
+  // copy ctr
+  Dictionary (const Dictionary &other_dict) : HashMap<string, string>
+                                                  (other_dict)
+  {}
   bool erase (const string &key) override;
 
   /**
@@ -32,7 +34,7 @@ class Dictionary : public HashMap<string ,string>
  * @param end iterator end
  */
   template<typename Iterator>
-  void update(Iterator begin, Iterator end);
+  void update (Iterator begin, Iterator end);
 };
 bool Dictionary::erase (const string &key)
 {
@@ -49,9 +51,9 @@ void Dictionary::update (Iterator begin, Iterator end)
 {
   // checks if iterator is empty
   if (begin == end)
-  {return;}
+  { return; }
   // same as vector constructor
-  for (auto& it = begin ; it!= end; ++it)
+  for (auto &it = begin; it != end; ++it)
   {
 
     if (contains_key (it->first))
@@ -59,7 +61,7 @@ void Dictionary::update (Iterator begin, Iterator end)
       at (it->first) = it->second;
     }
     else
-    {insert (it->first, it->second);}
+    { insert (it->first, it->second); }
   }
 }
 
