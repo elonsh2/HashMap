@@ -21,7 +21,8 @@ class Dictionary : public HashMap<string ,string>
   Dictionary(const vector<string>& keys, const vector<string>& values):
       HashMap<string, string>(keys, values) {}
       // copy ctr
-  Dictionary(Dictionary& other_dict) : HashMap<string, string>(other_dict) {}
+  Dictionary(const Dictionary& other_dict) : HashMap<string, string>
+      (other_dict) {}
   bool erase (const string &key) override;
 
   /**
@@ -52,11 +53,13 @@ void Dictionary::update (Iterator begin, Iterator end)
   // same as vector constructor
   for (auto& it = begin ; it!= end; ++it)
   {
+
     if (contains_key (it->first))
     {
-      erase (it->first); // TODO: check, erase or just change;
+      at (it->first) = it->second;
     }
-    insert (it->first, it->second);
+    else
+    {insert (it->first, it->second);}
   }
 }
 

@@ -1,13 +1,8 @@
 #include "iostream"
 #include "vector"
 #include "string"
-#include "set"
 #include <utility>
-#include <algorithm>
 #include <stdexcept>
-#include <cassert>
-#include <forward_list>
-#include <list>
 
 #ifndef _HASHMAP_HPP_
 #define _HASHMAP_HPP_
@@ -31,7 +26,7 @@ class HashMap
   // vectors ctr
   HashMap (const vector<KeyT> &keys, const vector<ValueT> &values);
   // copy ctr
-  HashMap (HashMap &other_map);
+  HashMap (const HashMap &other_map);
   virtual ~HashMap (); // destructor
 
   /*    Short Methods  */
@@ -280,7 +275,7 @@ HashMap<KeyT, ValueT>::HashMap (const vector<KeyT> &keys, const vector<ValueT>
   {
     if (contains_key (keys[i]))
     {
-      at(keys[i]) = values[i]; // TODO: check, erase or just change;
+      at(keys[i]) = values[i];
     }
     else
     { insert (keys[i], values[i]); }
@@ -288,7 +283,7 @@ HashMap<KeyT, ValueT>::HashMap (const vector<KeyT> &keys, const vector<ValueT>
 }
 
 template<typename KeyT, typename ValueT>
-HashMap<KeyT, ValueT>::HashMap (HashMap<KeyT, ValueT> &other_map)
+HashMap<KeyT, ValueT>::HashMap (const HashMap &other_map)
 {
   _capacity = other_map._capacity;
   buckets = new vector<std::pair<KeyT, ValueT>>[_capacity];
