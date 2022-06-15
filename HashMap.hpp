@@ -392,10 +392,10 @@ void HashMap<KeyT, ValueT>::resize_array (const size_t size, bool flag)
   {
     while (load_factor < DEFAULT_LOWER_LOAD)
     {
-      _capacity = _capacity / 2;
-      update_load_factor ();
       if (_capacity == 1)
       { break; }
+      _capacity = _capacity / 2;
+      update_load_factor ();
     }
   }
   buckets = new vector<std::pair<KeyT, ValueT>>[_capacity];
