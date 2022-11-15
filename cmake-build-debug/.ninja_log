@@ -1,0 +1,6 @@
+# ninja log v5
+5	2265	6769726271918585	CMakeFiles/ex6.dir/test_ex6.cpp.obj	b855927b8fe86c4d
+1458	1806	6770181018360553	ex6.exe	bc14befff63d3eea
+4	1458	6770181014880541	CMakeFiles/ex6.dir/tests_ex6_suchetzky.cpp.obj	e4af377f28acf89d
+2	2681	6770717482903447	CMakeFiles/ex6.dir/test_ex6.cpp.obj	b855927b8fe86c4d
+2683	3477	6770717490853435	ex6.exe	95273a58be0f61c6
