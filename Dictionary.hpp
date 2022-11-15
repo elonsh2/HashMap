@@ -12,6 +12,9 @@ class InvalidKey : public std::invalid_argument
   {}
 };
 
+/**
+ * this class uses the HashMap class to implement a dictionary
+ */
 class Dictionary : public HashMap<string, string>
 {
  public:

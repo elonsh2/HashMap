@@ -17,6 +17,7 @@ using std::endl;
 #define DEFAULT_UPPER_LOAD 0.75
 #define WRONG_SIZE_VECTORS "Vectors are not in the same size"
 #define KEY_NOT_FOUND "Key doesn't exist"
+
 template<typename KeyT, typename ValueT>
 class HashMap
 {
