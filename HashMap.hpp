@@ -218,7 +218,7 @@ class HashMap
   { return ConstIterator (*this, 0, 0); }
   const_iterator cbegin () const
   { return ConstIterator (*this, 0, 0); }
-  // end points to  one past last element in last bucket
+  // end points to one past last element in last bucket
   const_iterator end () const
   {
     int last_bucket = _capacity - 1;

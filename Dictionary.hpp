@@ -13,7 +13,7 @@ class InvalidKey : public std::invalid_argument
 };
 
 /**
- * this class uses the HashMap class to implement a dictionary
+ * this class uses the HashMap class to implement a dictionary.
  */
 class Dictionary : public HashMap<string, string>
 {
@@ -33,7 +33,7 @@ class Dictionary : public HashMap<string, string>
   /**
  * gets an iterator and updates dict
  * @tparam Iterator iterator object
- * @param begin itertor start
+ * @param begin iterator start
  * @param end iterator end
  */
   template<typename Iterator>
