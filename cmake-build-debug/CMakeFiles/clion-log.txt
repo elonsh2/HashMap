@@ -1,4 +1,4 @@
-C:\Windows\system32\wsl.exe --distribution Ubuntu --exec /bin/bash -c "export CLION_IDE=TRUE && export JETBRAINS_IDE=TRUE && cd '/mnt/c/Users/Elon/Desktop/C C++/ex/ex6/cmake-build-debug' && /usr/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G 'CodeBlocks - Unix Makefiles' -S '/mnt/c/Users/Elon/Desktop/C C++/ex/ex6' -B '/mnt/c/Users/Elon/Desktop/C C++/ex/ex6/cmake-build-debug'"
+C:\Windows\system32\wsl.exe --distribution Ubuntu --exec /bin/bash -c "export CLION_IDE=TRUE && export JETBRAINS_IDE=TRUE && cd '/mnt/c/Users/Elon/Desktop/לימודים/C C++/ex/ex6/cmake-build-debug' && /usr/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G 'CodeBlocks - Unix Makefiles' -S '/mnt/c/Users/Elon/Desktop/לימודים/C C++/ex/ex6' -B '/mnt/c/Users/Elon/Desktop/לימודים/C C++/ex/ex6/cmake-build-debug'"
 -- The C compiler identification is GNU 9.4.0
 -- The CXX compiler identification is GNU 9.4.0
 -- Check for working C compiler: /usr/bin/cc
@@ -14,5 +14,17 @@ C:\Windows\system32\wsl.exe --distribution Ubuntu --exec /bin/bash -c "export CL
 -- Detecting CXX compile features
 -- Detecting CXX compile features - done
 -- Configuring done
--- Generating done
--- Build files have been written to: /mnt/c/Users/Elon/Desktop/C C++/ex/ex6/cmake-build-debug
+CMake Error at CMakeLists.txt:8 (add_executable):
+  Cannot find source file:
+
+    test_ex6.cpp
+
+  Tried extensions .c .C .c++ .cc .cpp .cxx .cu .m .M .mm .h .hh .h++ .hm
+  .hpp .hxx .in .txx
+
+
+CMake Error at CMakeLists.txt:8 (add_executable):
+  No SOURCES given to target: ex6
+
+
+CMake Generate step failed.  Build files cannot be regenerated correctly.
